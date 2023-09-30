@@ -95,12 +95,12 @@ namespace DumpToExcel
 
             if (customerModel.Count() > 0)
             {
-                dgData.DataSource = GetDataTable(customerModel); ;
+                dtCustomerData = GetDataTable(customerModel);
+                dgData.DataSource = GetDataTable(customerModel);
                 dgData.AutoGenerateColumns = true;
                 BtnExporttoExcel.Enabled = true;
             }
 
-            //dtCustomerData = GetFinaldata(customerEmail, customerContactNo, customerNames, customerPincode, pageText);
             //if (dtCustomerData.Rows.Count > 0)
             //{
             //    //WriteDataTableToExcel(dtCustomerData, exceloutputFilePath);
