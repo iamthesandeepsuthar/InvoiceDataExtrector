@@ -29,6 +29,7 @@ namespace DumpToExcel
         {
             try
             {
+                ControlEnable(false);
                 if (!string.IsNullOrEmpty(txtFilePath.Text))
                 {
                     bool isInternetAvailable = IsInternetConnectionAvailable();
@@ -42,7 +43,7 @@ namespace DumpToExcel
                         GetData(PDFFilePath);
                     }
                     else
-                        MessageBox.Show("Internet connection is not available.","Invoice Data Extractor");
+                        MessageBox.Show("Internet connection is not available.", "Invoice Data Extractor");
                 }
                 else
                     MessageBox.Show("Select PDF file first", "Validate");
@@ -51,6 +52,7 @@ namespace DumpToExcel
             {
                 MessageBox.Show($"Error in GetData:{ex.Message}", "Error");
             }
+            ControlEnable(true);
         }
 
         private async void GetData(string fileName)
@@ -107,7 +109,7 @@ namespace DumpToExcel
                     dgData.DataSource = dtCustomerData.DefaultView;
                     dgData.AutoGenerateColumns = true;
                     BtnExporttoExcel.Enabled = true;
-                    pbLoading.Visible = false;
+
                 }
 
                 //if (dtCustomerData.Rows.Count > 0)
@@ -122,6 +124,7 @@ namespace DumpToExcel
             {
                 MessageBox.Show($"Error in GetData:{ex.Message}", "Error");
             }
+            pbLoading.Visible = false;
         }
         private void BtnExporttoExcel_Click(object sender, EventArgs e)
         {
@@ -136,9 +139,10 @@ namespace DumpToExcel
                     {
                         var exceloutputFilePath = saveFileDialog.FileName;// + DateTime.Now.ToString("yyyy-MM-dd");
                         WriteDataTableToExcel(dtCustomerData, exceloutputFilePath);
-                        pbLoading.Visible = false;
+
                         MessageBox.Show("Data successfully exported to excel", "Export Data");
                     }
+
                 }
                 else
                     MessageBox.Show("Extract data first from PDF file", "Data Extraction");
@@ -147,6 +151,7 @@ namespace DumpToExcel
             {
                 MessageBox.Show($"Error in BtnExporttoExcel_Click:{ex.Message}", "Error");
             }
+            pbLoading.Visible = false;
         }
 
         private void dgData_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
@@ -321,6 +326,22 @@ namespace DumpToExcel
             {
                 // An exception occurred, indicating that there is no internet connection
                 return false;
+            }
+        }
+
+        private void ControlEnable(bool isEnable = true)
+        {
+            BtnExtractData.Enabled = isEnable;
+            BtnReset.Enabled = isEnable;
+            BtnPdf.Enabled = isEnable;
+            if (isEnable && txtFilePath.Text.Length > 0)
+            {
+
+                BtnExporttoExcel.Enabled = isEnable;
+            }
+            else
+            {
+                BtnExtractData.Enabled = false;
             }
         }
     }
