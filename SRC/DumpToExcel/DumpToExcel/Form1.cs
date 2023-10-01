@@ -52,7 +52,6 @@ namespace DumpToExcel
             {
                 MessageBox.Show($"Error in GetData:{ex.Message}", "Error");
             }
-            ControlEnable(true);
         }
 
         private async void GetData(string fileName)
@@ -125,6 +124,8 @@ namespace DumpToExcel
                 MessageBox.Show($"Error in GetData:{ex.Message}", "Error");
             }
             pbLoading.Visible = false;
+            ControlEnable(true);
+
         }
         private void BtnExporttoExcel_Click(object sender, EventArgs e)
         {
@@ -245,6 +246,7 @@ namespace DumpToExcel
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     txtFilePath.Text = openFileDialog.FileName;
+                    BtnExtractData.Enabled = true;
                 }
             }
             catch (Exception ex)
@@ -257,8 +259,8 @@ namespace DumpToExcel
         {
             try
             {
-                pbLoading.Visible = false;
-                BtnExtractData.Enabled = true;
+                BtnExtractData.Enabled = false;
+                BtnExporttoExcel.Enabled = false;
                 pbLoading.Visible = false;
                 txtFilePath.Clear();
                 dgData.DataSource = null;
