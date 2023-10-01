@@ -23,6 +23,7 @@ namespace DumpToExcel
         public Form1()
         {
             InitializeComponent();
+            lblAssemblyVersion.Text = $"Application Ver-{ Application.ProductVersion}";
         }
 
         private void BtnExtractData_Click(object sender, EventArgs e)
@@ -333,17 +334,51 @@ namespace DumpToExcel
 
         private void ControlEnable(bool isEnable = true)
         {
-            BtnExtractData.Enabled = isEnable;
-            BtnReset.Enabled = isEnable;
-            BtnPdf.Enabled = isEnable;
-            if (isEnable && txtFilePath.Text.Length > 0)
+            try
             {
-
-                BtnExporttoExcel.Enabled = isEnable;
+                BtnExtractData.Enabled = isEnable;
+                BtnReset.Enabled = isEnable;
+                BtnPdf.Enabled = isEnable;
+                if (isEnable && txtFilePath.Text.Length > 0)
+                {
+                    BtnExporttoExcel.Enabled = isEnable;
+                }
+                else
+                {
+                    BtnExtractData.Enabled = false;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                BtnExtractData.Enabled = false;
+                MessageBox.Show($"Error in ControlEnable :{ex.Message}", "Error");
+            }
+        }
+        bool isClosed = false;
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+         
+            try
+            {
+                if (dgData.Rows.Count > 0 || pbLoading.Visible == true)
+                {
+                    if (!isClosed)
+                    {
+                        DialogResult dialogResult = MessageBox.Show("Are you sure to close without data save?", "Data Exctractor", MessageBoxButtons.YesNo);
+                        if (dialogResult == DialogResult.Yes)
+                        {
+                            isClosed = true;
+                            Application.Exit();
+                        }
+                        else
+                        { e.Cancel = true;
+                            isClosed = false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error in ControlEnable :{ex.Message}", "Error");
             }
         }
     }
