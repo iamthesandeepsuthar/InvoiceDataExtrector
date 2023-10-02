@@ -23,7 +23,7 @@ namespace DumpToExcel
         public Form1()
         {
             InitializeComponent();
-            lblAssemblyVersion.Text = $"Application Ver-{ Application.ProductVersion}";
+            lblAssemblyVersion.Text = $"Version:{ Application.ProductVersion}";
         }
 
         private void BtnExtractData_Click(object sender, EventArgs e)
@@ -44,7 +44,10 @@ namespace DumpToExcel
                         GetData(PDFFilePath);
                     }
                     else
+                    {
                         MessageBox.Show("Internet connection is not available.", "Invoice Data Extractor");
+                        ControlEnable(true);
+                    }
                 }
                 else
                     MessageBox.Show("Select PDF file first", "Validate");
@@ -109,16 +112,7 @@ namespace DumpToExcel
                     dgData.DataSource = dtCustomerData.DefaultView;
                     dgData.AutoGenerateColumns = true;
                     BtnExporttoExcel.Enabled = true;
-
-                }
-
-                //if (dtCustomerData.Rows.Count > 0)
-                //{
-                //    //WriteDataTableToExcel(dtCustomerData, exceloutputFilePath);
-                //    dgData.DataSource = dtCustomerData.DefaultView;
-                //    dgData.AutoGenerateColumns = true;
-                //    BtnExporttoExcel.Enabled = true;
-                //}
+                }               
             }
             catch (Exception ex)
             {
@@ -318,12 +312,14 @@ namespace DumpToExcel
         private bool IsInternetConnectionAvailable()
         {
             try
-            {
-                // Ping a well-known host like Google's DNS server (8.8.8.8)
-                Ping ping = new Ping();
-                PingReply reply = ping.Send("8.8.8.8");
-
-                return reply.Status == IPStatus.Success;
+            {              
+                Ping myPing = new Ping();
+                String host = "google.com";
+                byte[] buffer = new byte[32];
+                int timeout = 1000;
+                PingOptions pingOptions = new PingOptions();
+                PingReply reply = myPing.Send(host, timeout, buffer, pingOptions);
+                return (reply.Status == IPStatus.Success);
             }
             catch (PingException)
             {

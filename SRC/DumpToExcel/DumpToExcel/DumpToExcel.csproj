@@ -114,8 +114,11 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="images\ext_pdf_filetype_icon_176234.ico" />
     <Content Include="images\loading-loading-forever.gif" />
     <Content Include="images\loading.png" />
+    <Content Include="images\Logo.ico" />
+    <Content Include="images\testing.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
