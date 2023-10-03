@@ -173,14 +173,14 @@ namespace DumpToExcel
             try
             {
                 dtData.Columns.Add("CustomerName", typeof(string));
-                dtData.Columns.Add("Email", typeof(string));
+                //dtData.Columns.Add("Email", typeof(string));
                 dtData.Columns.Add("ContactNo", typeof(string));
                 dtData.Columns.Add("Pincode", typeof(string));
                 dtData.Columns.Add("CustomerAddress", typeof(string));
 
                 foreach (var item in model)
                 {
-                    dtData.Rows.Add(item.CustomerName, item.EmailId, item.MobileNo, item.Pincode, item.RecipientAddress);
+                    dtData.Rows.Add(item.CustomerName, item.MobileNo, item.Pincode, item.RecipientAddress);
                 }
             }
             catch (Exception ex)
@@ -259,7 +259,7 @@ namespace DumpToExcel
                 BtnExtractData.Enabled = false;
                 BtnExporttoExcel.Enabled = false;
                 pbLoading.Visible = false;
-                txtFilePath.Clear();
+                txtFilePath.Text = String.Empty;
                 dgData.DataSource = null;
             }
             catch (Exception ex)
@@ -335,7 +335,7 @@ namespace DumpToExcel
             {
                 BtnExtractData.Enabled = isEnable;
                 BtnReset.Enabled = isEnable;
-                BtnPdf.Enabled = isEnable;
+                //BtnPdf.Enabled = isEnable;
                 if (isEnable && txtFilePath.Text.Length > 0)
                 {
                     BtnExporttoExcel.Enabled = isEnable;
@@ -392,7 +392,7 @@ namespace DumpToExcel
                 int daysDifference = (int)difference.TotalDays;
                 if (dtExpiredOnWithoutTime == dtTodayWithoutTime)
                 {
-                    MessageBox.Show($"Software licence has been expired,{Environment.NewLine} Please contact Administrator", messageBoxTitle,MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                    MessageBox.Show($"Software licence has been expired,{Environment.NewLine} Please contact Administrator", messageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Application.Exit();
                 }
                 else if (daysDifference <= 10)
@@ -410,6 +410,11 @@ namespace DumpToExcel
         private void Form1_Load(object sender, EventArgs e)
         {
             CheckApplicationLicence();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Hi");
         }
     }
 }
