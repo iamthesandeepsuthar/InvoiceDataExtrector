@@ -20,9 +20,11 @@ namespace DumpToExcel
     public partial class Form1 : Form
     {
         DataTable dtCustomerData = new DataTable();
+        string messageBoxTitle = "Invoice Extractor";
         public Form1()
         {
             InitializeComponent();
+
             lblAssemblyVersion.Text = $"Version:{ Application.ProductVersion}";
         }
 
@@ -45,12 +47,12 @@ namespace DumpToExcel
                     }
                     else
                     {
-                        MessageBox.Show("Internet connection is not available.", "Invoice Data Extractor");
+                        MessageBox.Show("Internet connection is not available.", messageBoxTitle);
                         ControlEnable(true);
                     }
                 }
                 else
-                    MessageBox.Show("Select PDF file first", "Validate");
+                    MessageBox.Show("Select PDF file first", messageBoxTitle);
             }
             catch (Exception ex)
             {
@@ -112,7 +114,7 @@ namespace DumpToExcel
                     dgData.DataSource = dtCustomerData.DefaultView;
                     dgData.AutoGenerateColumns = true;
                     BtnExporttoExcel.Enabled = true;
-                }               
+                }
             }
             catch (Exception ex)
             {
@@ -136,12 +138,12 @@ namespace DumpToExcel
                         var exceloutputFilePath = saveFileDialog.FileName;// + DateTime.Now.ToString("yyyy-MM-dd");
                         WriteDataTableToExcel(dtCustomerData, exceloutputFilePath);
 
-                        MessageBox.Show("Data successfully exported to excel", "Export Data");
+                        MessageBox.Show("Data successfully exported to excel", messageBoxTitle);
                     }
 
                 }
                 else
-                    MessageBox.Show("Extract data first from PDF file", "Data Extraction");
+                    MessageBox.Show("Extract data first from PDF file", messageBoxTitle);
             }
             catch (Exception ex)
             {
@@ -312,7 +314,7 @@ namespace DumpToExcel
         private bool IsInternetConnectionAvailable()
         {
             try
-            {              
+            {
                 Ping myPing = new Ping();
                 String host = "google.com";
                 byte[] buffer = new byte[32];
@@ -323,7 +325,6 @@ namespace DumpToExcel
             }
             catch (PingException)
             {
-                // An exception occurred, indicating that there is no internet connection
                 return false;
             }
         }
@@ -352,21 +353,22 @@ namespace DumpToExcel
         bool isClosed = false;
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-         
+
             try
             {
                 if (dgData.Rows.Count > 0 || pbLoading.Visible == true)
                 {
                     if (!isClosed)
                     {
-                        DialogResult dialogResult = MessageBox.Show("Are you sure to close without data save?", "Data Exctractor", MessageBoxButtons.YesNo);
+                        DialogResult dialogResult = MessageBox.Show("Please make sure to save data in excel, Before close software.", "Data Exctractor", MessageBoxButtons.YesNo);
                         if (dialogResult == DialogResult.Yes)
                         {
                             isClosed = true;
                             Application.Exit();
                         }
                         else
-                        { e.Cancel = true;
+                        {
+                            e.Cancel = true;
                             isClosed = false;
                         }
                     }
@@ -376,6 +378,38 @@ namespace DumpToExcel
             {
                 MessageBox.Show($"Error in ControlEnable :{ex.Message}", "Error");
             }
+        }
+
+        private void CheckApplicationLicence()
+        {
+            try
+            {
+                DateTime dtExpiredOn = new DateTime(2024, 10, 31);
+                DateTime dtToday = DateTime.Now;
+                DateTime dtExpiredOnWithoutTime = dtExpiredOn.Date;
+                DateTime dtTodayWithoutTime = dtToday.Date;
+                TimeSpan difference = dtExpiredOnWithoutTime - dtTodayWithoutTime;
+                int daysDifference = (int)difference.TotalDays;
+                if (dtExpiredOnWithoutTime == dtTodayWithoutTime)
+                {
+                    MessageBox.Show($"Software licence has been expired,{Environment.NewLine} Please contact Administrator", messageBoxTitle,MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                    Application.Exit();
+                }
+                else if (daysDifference <= 10)
+                {
+                    MessageBox.Show($"Software licence will expiried in {daysDifference}.{Environment.NewLine} Please contact Administrator before stop the software", messageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error in CheckApplicationLicence :{ex.Message}", "Error");
+            }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            CheckApplicationLicence();
         }
     }
 }

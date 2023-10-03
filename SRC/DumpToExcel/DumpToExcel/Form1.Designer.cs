@@ -29,15 +29,10 @@ namespace DumpToExcel
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.BtnExtractData = new System.Windows.Forms.Button();
             this.dgData = new System.Windows.Forms.DataGridView();
-            this.CustomerName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Email = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ContactNo = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Pincode = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CustomerAddress = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.BtnExporttoExcel = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.txtFilePath = new System.Windows.Forms.TextBox();
@@ -45,10 +40,15 @@ namespace DumpToExcel
             this.BtnReset = new System.Windows.Forms.Button();
             this.pnlTop = new System.Windows.Forms.Panel();
             this.pnlBottom = new System.Windows.Forms.Panel();
+            this.label2 = new System.Windows.Forms.Label();
             this.lblAssemblyVersion = new System.Windows.Forms.Label();
             this.pnlMiddle = new System.Windows.Forms.Panel();
             this.pbLoading = new System.Windows.Forms.PictureBox();
-            this.label2 = new System.Windows.Forms.Label();
+            this.CustomerName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Email = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ContactNo = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Pincode = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CustomerAddress = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dgData)).BeginInit();
             this.pnlTop.SuspendLayout();
             this.pnlBottom.SuspendLayout();
@@ -60,6 +60,8 @@ namespace DumpToExcel
             // 
             this.BtnExtractData.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.BtnExtractData.BackColor = System.Drawing.Color.White;
+            this.BtnExtractData.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("BtnExtractData.BackgroundImage")));
+            this.BtnExtractData.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.BtnExtractData.Enabled = false;
             this.BtnExtractData.FlatAppearance.BorderSize = 0;
             this.BtnExtractData.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -69,7 +71,6 @@ namespace DumpToExcel
             this.BtnExtractData.Name = "BtnExtractData";
             this.BtnExtractData.Size = new System.Drawing.Size(107, 23);
             this.BtnExtractData.TabIndex = 0;
-            this.BtnExtractData.Text = "Start";
             this.BtnExtractData.UseVisualStyleBackColor = false;
             this.BtnExtractData.Click += new System.EventHandler(this.BtnExtractData_Click);
             // 
@@ -78,14 +79,14 @@ namespace DumpToExcel
             this.dgData.AllowUserToAddRows = false;
             this.dgData.AllowUserToDeleteRows = false;
             this.dgData.BackgroundColor = System.Drawing.Color.White;
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgData.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgData.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             this.dgData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgData.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.CustomerName,
@@ -102,55 +103,12 @@ namespace DumpToExcel
             this.dgData.TabIndex = 1;
             this.dgData.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.dgData_RowPostPaint);
             // 
-            // CustomerName
-            // 
-            this.CustomerName.DataPropertyName = "CustomerName";
-            this.CustomerName.HeaderText = "Customer Name";
-            this.CustomerName.MinimumWidth = 6;
-            this.CustomerName.Name = "CustomerName";
-            this.CustomerName.ReadOnly = true;
-            this.CustomerName.Width = 300;
-            // 
-            // Email
-            // 
-            this.Email.DataPropertyName = "Email";
-            this.Email.HeaderText = "Email";
-            this.Email.MinimumWidth = 6;
-            this.Email.Name = "Email";
-            this.Email.ReadOnly = true;
-            this.Email.Width = 300;
-            // 
-            // ContactNo
-            // 
-            this.ContactNo.DataPropertyName = "ContactNo";
-            this.ContactNo.HeaderText = "Contact No";
-            this.ContactNo.MinimumWidth = 6;
-            this.ContactNo.Name = "ContactNo";
-            this.ContactNo.ReadOnly = true;
-            this.ContactNo.Width = 220;
-            // 
-            // Pincode
-            // 
-            this.Pincode.DataPropertyName = "Pincode";
-            this.Pincode.HeaderText = "Pincode";
-            this.Pincode.MinimumWidth = 6;
-            this.Pincode.Name = "Pincode";
-            this.Pincode.ReadOnly = true;
-            this.Pincode.Width = 150;
-            // 
-            // CustomerAddress
-            // 
-            this.CustomerAddress.DataPropertyName = "CustomerAddress";
-            this.CustomerAddress.HeaderText = "Customer Address";
-            this.CustomerAddress.MinimumWidth = 6;
-            this.CustomerAddress.Name = "CustomerAddress";
-            this.CustomerAddress.ReadOnly = true;
-            this.CustomerAddress.Width = 300;
-            // 
             // BtnExporttoExcel
             // 
             this.BtnExporttoExcel.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.BtnExporttoExcel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(175)))), ((int)(((byte)(48)))));
+            this.BtnExporttoExcel.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("BtnExporttoExcel.BackgroundImage")));
+            this.BtnExporttoExcel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.BtnExporttoExcel.Enabled = false;
             this.BtnExporttoExcel.FlatAppearance.BorderSize = 0;
             this.BtnExporttoExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -160,7 +118,6 @@ namespace DumpToExcel
             this.BtnExporttoExcel.Name = "BtnExporttoExcel";
             this.BtnExporttoExcel.Size = new System.Drawing.Size(107, 23);
             this.BtnExporttoExcel.TabIndex = 2;
-            this.BtnExporttoExcel.Text = "Save";
             this.BtnExporttoExcel.UseVisualStyleBackColor = false;
             this.BtnExporttoExcel.Click += new System.EventHandler(this.BtnExporttoExcel_Click);
             // 
@@ -187,7 +144,8 @@ namespace DumpToExcel
             // 
             this.BtnPdf.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.BtnPdf.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(32)))), ((int)(((byte)(67)))));
-            this.BtnPdf.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.BtnPdf.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("BtnPdf.BackgroundImage")));
+            this.BtnPdf.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.BtnPdf.FlatAppearance.BorderSize = 0;
             this.BtnPdf.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.BtnPdf.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -197,7 +155,6 @@ namespace DumpToExcel
             this.BtnPdf.Name = "BtnPdf";
             this.BtnPdf.Size = new System.Drawing.Size(123, 23);
             this.BtnPdf.TabIndex = 5;
-            this.BtnPdf.Text = "Choose PDF";
             this.BtnPdf.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.BtnPdf.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.BtnPdf.UseVisualStyleBackColor = false;
@@ -207,6 +164,8 @@ namespace DumpToExcel
             // 
             this.BtnReset.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.BtnReset.BackColor = System.Drawing.Color.White;
+            this.BtnReset.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("BtnReset.BackgroundImage")));
+            this.BtnReset.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.BtnReset.FlatAppearance.BorderSize = 0;
             this.BtnReset.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.BtnReset.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -215,7 +174,6 @@ namespace DumpToExcel
             this.BtnReset.Name = "BtnReset";
             this.BtnReset.Size = new System.Drawing.Size(123, 23);
             this.BtnReset.TabIndex = 6;
-            this.BtnReset.Text = "Clear";
             this.BtnReset.UseVisualStyleBackColor = false;
             this.BtnReset.Click += new System.EventHandler(this.BtnReset_Click);
             // 
@@ -242,6 +200,18 @@ namespace DumpToExcel
             this.pnlBottom.Name = "pnlBottom";
             this.pnlBottom.Size = new System.Drawing.Size(914, 50);
             this.pnlBottom.TabIndex = 9;
+            // 
+            // label2
+            // 
+            this.label2.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label2.Location = new System.Drawing.Point(28, 6);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(128, 13);
+            this.label2.TabIndex = 8;
+            this.label2.Text = "Powered by Storeone";
             // 
             // lblAssemblyVersion
             // 
@@ -278,17 +248,51 @@ namespace DumpToExcel
             this.pbLoading.TabStop = false;
             this.pbLoading.Visible = false;
             // 
-            // label2
+            // CustomerName
             // 
-            this.label2.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.label2.Location = new System.Drawing.Point(28, 6);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(128, 13);
-            this.label2.TabIndex = 8;
-            this.label2.Text = "Powered by Storeone";
+            this.CustomerName.DataPropertyName = "CustomerName";
+            this.CustomerName.HeaderText = "Customer Name";
+            this.CustomerName.MinimumWidth = 6;
+            this.CustomerName.Name = "CustomerName";
+            this.CustomerName.ReadOnly = true;
+            this.CustomerName.Width = 375;
+            // 
+            // Email
+            // 
+            this.Email.DataPropertyName = "Email";
+            this.Email.HeaderText = "Email";
+            this.Email.MinimumWidth = 6;
+            this.Email.Name = "Email";
+            this.Email.ReadOnly = true;
+            this.Email.Visible = false;
+            this.Email.Width = 300;
+            // 
+            // ContactNo
+            // 
+            this.ContactNo.DataPropertyName = "ContactNo";
+            this.ContactNo.HeaderText = "Contact No";
+            this.ContactNo.MinimumWidth = 6;
+            this.ContactNo.Name = "ContactNo";
+            this.ContactNo.ReadOnly = true;
+            this.ContactNo.Width = 295;
+            // 
+            // Pincode
+            // 
+            this.Pincode.DataPropertyName = "Pincode";
+            this.Pincode.HeaderText = "Pincode";
+            this.Pincode.MinimumWidth = 6;
+            this.Pincode.Name = "Pincode";
+            this.Pincode.ReadOnly = true;
+            this.Pincode.Width = 225;
+            // 
+            // CustomerAddress
+            // 
+            this.CustomerAddress.DataPropertyName = "CustomerAddress";
+            this.CustomerAddress.HeaderText = "Customer Address";
+            this.CustomerAddress.MinimumWidth = 6;
+            this.CustomerAddress.Name = "CustomerAddress";
+            this.CustomerAddress.ReadOnly = true;
+            this.CustomerAddress.Width = 375;
             // 
             // Form1
             // 
@@ -305,6 +309,7 @@ namespace DumpToExcel
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Invoice Converter";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgData)).EndInit();
             this.pnlTop.ResumeLayout(false);
             this.pnlTop.PerformLayout();
@@ -329,13 +334,13 @@ namespace DumpToExcel
         private System.Windows.Forms.Panel pnlBottom;
         private System.Windows.Forms.Panel pnlMiddle;
         private System.Windows.Forms.PictureBox pbLoading;
+        private System.Windows.Forms.Label lblAssemblyVersion;
+        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.DataGridViewTextBoxColumn CustomerName;
         private System.Windows.Forms.DataGridViewTextBoxColumn Email;
         private System.Windows.Forms.DataGridViewTextBoxColumn ContactNo;
         private System.Windows.Forms.DataGridViewTextBoxColumn Pincode;
         private System.Windows.Forms.DataGridViewTextBoxColumn CustomerAddress;
-        private System.Windows.Forms.Label lblAssemblyVersion;
-        private System.Windows.Forms.Label label2;
     }
 }
 
