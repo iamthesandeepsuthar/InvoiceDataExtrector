@@ -396,3 +396,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/SRC/DumpToExcel/DumpToExcel/images/loading.png

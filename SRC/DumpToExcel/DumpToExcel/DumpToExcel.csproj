@@ -114,8 +114,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="images\loading-loading-forever.gif" />
-    <Content Include="images\loading.png" />
+    <Content Include="images\clear_btn.png" />
+    <Content Include="images\download_btn.png" />
+    <Content Include="images\loading-gif.gif" />
+    <Content Include="images\loading1-gif.gif" />
+    <Content Include="images\Logo.ico" />
+    <Content Include="images\Select_pdf.png" />
+    <Content Include="images\start_btn.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
