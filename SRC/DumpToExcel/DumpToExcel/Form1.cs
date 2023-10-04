@@ -20,111 +20,39 @@ namespace DumpToExcel
     public partial class Form1 : Form
     {
         DataTable dtCustomerData = new DataTable();
+        string[] fileNames;
         string messageBoxTitle = "Invoice Extractor";
         public Form1()
         {
             InitializeComponent();
 
-            lblAssemblyVersion.Text = $"Version:{ Application.ProductVersion}";
+            lblAssemblyVersion.Text = $"Version:{Application.ProductVersion}";
         }
 
         private void BtnExtractData_Click(object sender, EventArgs e)
         {
-            try
-            {
-                ControlEnable(false);
-                if (!string.IsNullOrEmpty(txtFilePath.Text))
-                {
-                    bool isInternetAvailable = IsInternetConnectionAvailable();
-
-                    if (isInternetAvailable)
-                    {
-                        BtnExtractData.Enabled = false;
-                        pbLoading.Visible = true;
-                        List<string> emailList = new List<string>();
-                        var PDFFilePath = txtFilePath.Text.Trim();
-                        GetData(PDFFilePath);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Internet connection is not available.", messageBoxTitle);
-                        ControlEnable(true);
-                    }
-                }
-                else
-                    MessageBox.Show("Select PDF file first", messageBoxTitle);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error in GetData:{ex.Message}", "Error");
-            }
-        }
-
-        private async void GetData(string fileName)
-        {
-            string pdfFilePath = fileName;
-            string pageText = string.Empty;
-            try
-            {
-                List<CustomerModel> customerModel = new List<CustomerModel>();
-                using (PdfReader pdfReader = new PdfReader(pdfFilePath))
-                {
-                    for (int page = 1; page <= pdfReader.NumberOfPages; page++)
-                    {
-                        CustomerModel customer = new CustomerModel();
-                        // Extract text from the current page
-                        pageText = PdfTextExtractor.GetTextFromPage(pdfReader, page);
-                        customer.PageContent = pageText;
-                        //Customer Name
-                        int pFrom = pageText.IndexOf("Recipient Address:") + "Recipient Address:".Length;
-                        int pTo = pageText.IndexOf("Ship From Address");
-                        customer.CustomerName = pageText.Substring(pFrom, pTo - pFrom).Trim();
-
-                        // Use a regular expression to find email addresses in the text
-                        // Add matching email addresses to the list
-                        string pattern = @"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}\b";
-                        MatchCollection matches = Regex.Matches(pageText, pattern);
-                        customer.EmailId = matches[0].Success && matches.Count == 1 ? matches[0].Value : "";
-                        // Add matching contact numbers to the list
-                        string patternContact = @"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b";
-                        MatchCollection matchesContact = Regex.Matches(pageText, patternContact);
-                        customer.MobileNo = matchesContact[0].Success && matchesContact.Count == 1 ? matchesContact[0].Value : "";
-
-                        //Pincode                  
-                        string patternPincode = @"\b\d{6}\b";
-                        MatchCollection matchesPincode = Regex.Matches(pageText, patternPincode);
-
-                        foreach (Match matchPincode in matchesPincode)
-                        {
-                            if (!matchPincode.Value.Contains("302017") &&
-                                !matchPincode.Value.Contains("302003") &&
-                                !matchPincode.Value.Contains("560025"))
-                            {
-                                customer.Pincode = matchPincode.Value;
-                            }
-                        }
-
-                        customer.RecipientAddress = await GetAreaNameFromPincode(customer);
-                        customerModel.Add(customer);
-                    }
-                }
-                if (customerModel.Count() > 0)
-                {
-                    dtCustomerData = GetDataTable(customerModel);
-                    dgData.DataSource = dtCustomerData.DefaultView;
-                    dgData.AutoGenerateColumns = true;
-                    BtnExporttoExcel.Enabled = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error in GetData:{ex.Message}", "Error");
-            }
-            pbLoading.Visible = false;
-            ControlEnable(true);
-
+            ExtractData();
         }
         private void BtnExporttoExcel_Click(object sender, EventArgs e)
+        {
+            ExportToExcel();
+        }
+
+        private void dgData_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        {
+            try
+            {
+                using (SolidBrush b = new SolidBrush(((DataGridView)sender).RowHeadersDefaultCellStyle.ForeColor))
+                {
+                    e.Graphics.DrawString((e.RowIndex + 1).ToString(), e.InheritedRowStyle.Font, b, e.RowBounds.Location.X + 10, e.RowBounds.Location.Y + 4);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error in dgData_RowPostPaint:{ex.Message}", "Error");
+            }
+        }
+        private void ExportToExcel()
         {
             try
             {
@@ -151,20 +79,106 @@ namespace DumpToExcel
             }
             pbLoading.Visible = false;
         }
-
-        private void dgData_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        private void ExtractData()
         {
             try
             {
-                using (SolidBrush b = new SolidBrush(((DataGridView)sender).RowHeadersDefaultCellStyle.ForeColor))
+                ControlEnable(false);
+                if (!string.IsNullOrEmpty(txtFilePath.Text))
                 {
-                    e.Graphics.DrawString((e.RowIndex + 1).ToString(), e.InheritedRowStyle.Font, b, e.RowBounds.Location.X + 10, e.RowBounds.Location.Y + 4);
+                    bool isInternetAvailable = IsInternetConnectionAvailable();
+
+                    if (isInternetAvailable)
+                    {
+                        BtnExtractData.Enabled = false;
+                        pbLoading.Visible = true;
+                        List<string> emailList = new List<string>();
+                            // var PDFFilePath = txtFilePath.Text.Trim();
+                            GetData();
+                      
+
+                    }
+                    else
+                    {
+                        MessageBox.Show("Internet connection is not available.", messageBoxTitle);
+                        ControlEnable(true);
+                    }
+                }
+                else
+                    MessageBox.Show("Select PDF file first", messageBoxTitle);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error in GetData:{ex.Message}", "Error");
+            }
+        }
+        private async void GetData()
+        {
+            string pageText = string.Empty;
+            try
+            {
+                List<CustomerModel> customerModel = new List<CustomerModel>();
+
+                foreach (var item in fileNames)
+                {
+                    using (PdfReader pdfReader = new PdfReader(item.Trim()))
+                    {
+                        for (int page = 1; page <= pdfReader.NumberOfPages; page++)
+                        {
+                            CustomerModel customer = new CustomerModel();
+                            // Extract text from the current page
+                            pageText = PdfTextExtractor.GetTextFromPage(pdfReader, page);
+                            customer.PageContent = pageText;
+                            //Customer Name
+                            int pFrom = pageText.IndexOf("Recipient Address:") + "Recipient Address:".Length;
+                            int pTo = pageText.IndexOf("Ship From Address");
+                            customer.CustomerName = pageText.Substring(pFrom, pTo - pFrom).Trim();
+
+                            // Use a regular expression to find email addresses in the text
+                            // Add matching email addresses to the list
+                            string pattern = @"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}\b";
+                            MatchCollection matches = Regex.Matches(pageText, pattern);
+                            customer.EmailId = matches[0].Success && matches.Count == 1 ? matches[0].Value : "";
+                            // Add matching contact numbers to the list
+                            string patternContact = @"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b";
+                            MatchCollection matchesContact = Regex.Matches(pageText, patternContact);
+                            customer.MobileNo = matchesContact[0].Success && matchesContact.Count == 1 ? matchesContact[0].Value : "";
+
+                            //Pincode                  
+                            string patternPincode = @"\b\d{6}\b";
+                            MatchCollection matchesPincode = Regex.Matches(pageText, patternPincode);
+
+                            foreach (Match matchPincode in matchesPincode)
+                            {
+                                if (!matchPincode.Value.Contains("302017") &&
+                                    !matchPincode.Value.Contains("302003") &&
+                                    !matchPincode.Value.Contains("560025"))
+                                {
+                                    customer.Pincode = matchPincode.Value;
+                                }
+                            }
+
+                            customer.RecipientAddress = await GetAreaNameFromPincode(customer);
+                            customerModel.Add(customer);
+                        }
+                    }
+                }
+
+                if (customerModel.Count() > 0)
+                {
+                    dtCustomerData = GetDataTable(customerModel);
+                    dgData.DataSource = dtCustomerData.DefaultView;
+                    dgData.AutoGenerateColumns = true;
+                    BtnExporttoExcel.Enabled = true;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error in dgData_RowPostPaint:{ex.Message}", "Error");
+                MessageBox.Show($"Error in GetData:{ex.Message}", "Error");
             }
+            pbLoading.Visible = false;
+            ControlEnable(true);
+
         }
 
         private DataTable GetDataTable(List<CustomerModel> model)
@@ -240,9 +254,11 @@ namespace DumpToExcel
             {
                 OpenFileDialog openFileDialog = new OpenFileDialog();
                 openFileDialog.Filter = "PDF Files (*.pdf)|*.pdf";
+                openFileDialog.Multiselect = true;
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    txtFilePath.Text = openFileDialog.FileName;
+                    fileNames = openFileDialog.FileNames;
+                    txtFilePath.Text = fileNames.Length > 1 ? $"{fileNames.Length} files selected...!" : openFileDialog.FileName;
                     BtnExtractData.Enabled = true;
                 }
             }
@@ -259,8 +275,9 @@ namespace DumpToExcel
                 BtnExtractData.Enabled = false;
                 BtnExporttoExcel.Enabled = false;
                 pbLoading.Visible = false;
-                txtFilePath.Text = String.Empty;
                 dgData.DataSource = null;
+                fileNames = null;
+                txtFilePath.Text = null;
             }
             catch (Exception ex)
             {
