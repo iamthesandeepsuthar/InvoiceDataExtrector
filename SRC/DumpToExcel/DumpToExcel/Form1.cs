@@ -93,9 +93,9 @@ namespace DumpToExcel
                         BtnExtractData.Enabled = false;
                         pbLoading.Visible = true;
                         List<string> emailList = new List<string>();
-                            // var PDFFilePath = txtFilePath.Text.Trim();
-                            GetData();
-                      
+                        // var PDFFilePath = txtFilePath.Text.Trim();
+                        GetData();
+
 
                     }
                     else
@@ -138,40 +138,49 @@ namespace DumpToExcel
                             // Add matching email addresses to the list
                             string pattern = @"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}\b";
                             MatchCollection matches = Regex.Matches(pageText, pattern);
-                            customer.EmailId = matches[0].Success && matches.Count == 1 ? matches[0].Value : "";
-                            // Add matching contact numbers to the list
-                            string patternContact = @"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b";
-                            MatchCollection matchesContact = Regex.Matches(pageText, patternContact);
-                            customer.MobileNo = matchesContact[0].Success && matchesContact.Count == 1 ? matchesContact[0].Value : "";
-
-                            //Pincode                  
-                            string patternPincode = @"\b\d{6}\b";
-                            MatchCollection matchesPincode = Regex.Matches(pageText, patternPincode);
-
-                            foreach (Match matchPincode in matchesPincode)
                             {
-                                if (!matchPincode.Value.Contains("302017") &&
-                                    !matchPincode.Value.Contains("302003") &&
-                                    !matchPincode.Value.Contains("560025"))
+                                customer.EmailId = matches != null && matches.Count > 0 && matches[0].Success && matches.Count == 1 ? matches[0].Value : "";
+
+                                // Add matching contact numbers to the list
+                                string patternContact = @"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b";
+                                MatchCollection matchesContact = Regex.Matches(pageText, patternContact);
+
+                                customer.MobileNo = matchesContact != null && matchesContact.Count > 0 && matchesContact[0].Success && matchesContact.Count == 1 ? matchesContact[0].Value : "";
+
+
+                                //Pincode                  
+                                string patternPincode = @"\b\d{6}\b";
+                                MatchCollection matchesPincode = Regex.Matches(pageText, patternPincode);
+
+                                if (matchesPincode != null && matchesPincode.Count > 0)
                                 {
-                                    customer.Pincode = matchPincode.Value;
+
+                                    foreach (Match matchPincode in matchesPincode)
+                                    {
+                                        if (!matchPincode.Value.Contains("302017") &&
+                                            !matchPincode.Value.Contains("302003") &&
+                                            !matchPincode.Value.Contains("560025"))
+                                        {
+                                            customer.Pincode = matchPincode.Value;
+                                        }
+                                    }
                                 }
                             }
 
-                            customer.RecipientAddress = await GetAreaNameFromPincode(customer);
-                            customerModel.Add(customer);
+                                customer.RecipientAddress = await GetAreaNameFromPincode(customer);
+                                customerModel.Add(customer);
+                            }
                         }
                     }
-                }
 
-                if (customerModel.Count() > 0)
-                {
-                    dtCustomerData = GetDataTable(customerModel);
-                    dgData.DataSource = dtCustomerData.DefaultView;
-                    dgData.AutoGenerateColumns = true;
-                    BtnExporttoExcel.Enabled = true;
+                    if (customerModel.Count() > 0)
+                    {
+                        dtCustomerData = GetDataTable(customerModel);
+                        dgData.DataSource = dtCustomerData.DefaultView;
+                        dgData.AutoGenerateColumns = true;
+                        BtnExporttoExcel.Enabled = true;
+                    }
                 }
-            }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error in GetData:{ex.Message}", "Error");
@@ -289,35 +298,38 @@ namespace DumpToExcel
         {
             try
             {
-                using (HttpClient client = new HttpClient())
+                if (model != null && !string.IsNullOrEmpty(model.Pincode))
                 {
-                    string apiUrl = $"https://api.postalpincode.in/pincode/{model.Pincode}";
-                    HttpResponseMessage response = await client.GetAsync(apiUrl);
-
-                    if (response.IsSuccessStatusCode)
+                    using (HttpClient client = new HttpClient())
                     {
-                        string responseBody = await response.Content.ReadAsStringAsync();
-                        PincodeDataModel data = new PincodeDataModel();
-                        var responseData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PincodeDataModel>>(responseBody);
-                        data = responseData.FirstOrDefault();
-                        string address = string.Empty;
-                        if (!string.IsNullOrEmpty(model.PageContent))
+                        string apiUrl = $"https://api.postalpincode.in/pincode/{model.Pincode}";
+                        HttpResponseMessage response = await client.GetAsync(apiUrl);
+
+                        if (response.IsSuccessStatusCode)
                         {
-                            foreach (var item in data.PostOffice)
+                            string responseBody = await response.Content.ReadAsStringAsync();
+                            PincodeDataModel data = new PincodeDataModel();
+                            var responseData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PincodeDataModel>>(responseBody);
+                            data = responseData.FirstOrDefault();
+                            string address = string.Empty;
+                            if (!string.IsNullOrEmpty(model.PageContent) && data.PostOffice != null)
                             {
-                                if (model.PageContent.Contains(item.Name))
+                                foreach (var item in data.PostOffice)
                                 {
-                                    address = $"{item.Name},";
+                                    if (model.PageContent.Contains(item.Name))
+                                    {
+                                        address = $"{item.Name},";
+                                    }
+                                }
+
+                                if (data.Status == "Success")
+                                {
+                                    address = $"{address}{data.PostOffice[0].District}, {data.PostOffice[0].State}-{model.Pincode}";
                                 }
                             }
 
-                            if (data.Status == "Success")
-                            {
-                                address = $"{address}{data.PostOffice[0].District}, {data.PostOffice[0].State}-{model.Pincode}";
-                            }
+                            return address;
                         }
-
-                        return address;
                     }
                 }
             }
