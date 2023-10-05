@@ -92,11 +92,7 @@ namespace DumpToExcel
                     {
                         BtnExtractData.Enabled = false;
                         pbLoading.Visible = true;
-                        List<string> emailList = new List<string>();
-                        // var PDFFilePath = txtFilePath.Text.Trim();
                         GetData();
-
-
                     }
                     else
                     {
@@ -138,49 +134,75 @@ namespace DumpToExcel
                             // Add matching email addresses to the list
                             string pattern = @"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}\b";
                             MatchCollection matches = Regex.Matches(pageText, pattern);
+                            customer.EmailId = matches != null && matches.Count > 0 && matches[0].Success && matches.Count > 0 ? matches[0].Value : "";
+
+                            // Add matching contact numbers to the list
+                            string patternContact = @"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b";
+                            MatchCollection matchesContact = Regex.Matches(pageText, patternContact);
+
+                            customer.MobileNo = matchesContact != null && matchesContact.Count > 0 && matchesContact[0].Success && matchesContact.Count > 0 ? matchesContact[0].Value : "";
+
+
+                            //Pincode                  
+                            string patternPincode = @"\b\d{6}\b";
+                            MatchCollection matchesPincode = Regex.Matches(pageText, patternPincode);
+
+                            if (matchesPincode != null && matchesPincode.Count > 0)
                             {
-                                customer.EmailId = matches != null && matches.Count > 0 && matches[0].Success && matches.Count == 1 ? matches[0].Value : "";
 
-                                // Add matching contact numbers to the list
-                                string patternContact = @"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b";
-                                MatchCollection matchesContact = Regex.Matches(pageText, patternContact);
-
-                                customer.MobileNo = matchesContact != null && matchesContact.Count > 0 && matchesContact[0].Success && matchesContact.Count == 1 ? matchesContact[0].Value : "";
-
-
-                                //Pincode                  
-                                string patternPincode = @"\b\d{6}\b";
-                                MatchCollection matchesPincode = Regex.Matches(pageText, patternPincode);
-
-                                if (matchesPincode != null && matchesPincode.Count > 0)
+                                foreach (Match matchPincode in matchesPincode)
                                 {
-
-                                    foreach (Match matchPincode in matchesPincode)
+                                    if (!matchPincode.Value.Contains("302017") &&
+                                        !matchPincode.Value.Contains("302003") &&
+                                        !matchPincode.Value.Contains("560025"))
                                     {
-                                        if (!matchPincode.Value.Contains("302017") &&
-                                            !matchPincode.Value.Contains("302003") &&
-                                            !matchPincode.Value.Contains("560025"))
-                                        {
-                                            customer.Pincode = matchPincode.Value;
-                                        }
+                                        customer.Pincode = matchPincode.Value;
+                                    }
+                                }
+                            }
+                            customer.RecipientAddress = await GetAreaNameFromPincode(customer);
+
+
+                            //Customer Name
+                            int oFrom = pageText.IndexOf("ORDER NUMBER:") + "ORDER NUMBER:".Length;
+                            int oTo = pageText.IndexOf("Mode Of Payment:");
+                            customer.OrderNumber = pageText.Substring(oFrom, oTo - oFrom).Trim() ?? "";
+                            if (customer.CustomerName.Contains("Divakar Dommaraju"))
+                            {
+                                var k = string.Empty;
+                            }
+                            string skuPattern = @"[A-Z]{3,4}\d{3,4}[A-Z,0-9]+(_[A-Z]{1,}|-([A-Z]{1,})|--([A-Z]{1,})|--)";
+                            string ptext = Regex.Replace(pageText, @"\t|\n|\r", "");
+                            MatchCollection SKUmatches = Regex.Matches(ptext, skuPattern);
+                            if (SKUmatches != null && SKUmatches.Count > 0)
+                            {
+                                if (SKUmatches.Count == 1)
+                                {
+                                    customer.SKUId = SKUmatches[0].Success && SKUmatches.Count > 0 ? SKUmatches[0].Value : "";
+                                }
+                                else
+                                {
+                                    for (int i = 0; i < SKUmatches.Count; i++)
+                                    {
+                                        customer.SKUId += SKUmatches[i].Success && SKUmatches.Count > 0 ? $"{(i > 0 ? "," : string.Empty)}{SKUmatches[i].Value}" : "";
                                     }
                                 }
                             }
 
-                                customer.RecipientAddress = await GetAreaNameFromPincode(customer);
-                                customerModel.Add(customer);
-                            }
+
+                            customerModel.Add(customer);
                         }
                     }
-
-                    if (customerModel.Count() > 0)
-                    {
-                        dtCustomerData = GetDataTable(customerModel);
-                        dgData.DataSource = dtCustomerData.DefaultView;
-                        dgData.AutoGenerateColumns = true;
-                        BtnExporttoExcel.Enabled = true;
-                    }
                 }
+
+                if (customerModel.Count() > 0)
+                {
+                    dtCustomerData = GetDataTable(customerModel);
+                    dgData.DataSource = dtCustomerData.DefaultView;
+                    dgData.AutoGenerateColumns = true;
+                    BtnExporttoExcel.Enabled = true;
+                }
+            }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error in GetData:{ex.Message}", "Error");
@@ -196,6 +218,9 @@ namespace DumpToExcel
             try
             {
                 dtData.Columns.Add("CustomerName", typeof(string));
+                dtData.Columns.Add("OrderNumber", typeof(string));
+                dtData.Columns.Add("SKUNumber", typeof(string));
+
                 //dtData.Columns.Add("Email", typeof(string));
                 dtData.Columns.Add("ContactNo", typeof(string));
                 dtData.Columns.Add("Pincode", typeof(string));
@@ -203,7 +228,7 @@ namespace DumpToExcel
 
                 foreach (var item in model)
                 {
-                    dtData.Rows.Add(item.CustomerName, item.MobileNo, item.Pincode, item.RecipientAddress);
+                    dtData.Rows.Add(item.CustomerName, item.OrderNumber, item.SKUId, item.MobileNo, item.Pincode, item.RecipientAddress);
                 }
             }
             catch (Exception ex)

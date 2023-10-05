@@ -13,6 +13,8 @@ namespace DumpToExcel
         public string RecipientAddress { get; set; }
         public string EmailId { get; set; }
         public string Pincode { get; set; }
+        public string OrderNumber { get; set; }
+        public string SKUId { get; set; }
         public string PageContent { get; set; }
     }
 

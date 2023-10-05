@@ -121,7 +121,7 @@
   <data name="BtnExtractData.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAHgAAAAaCAYAAAB8WJiDAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
-        EwAACxMBAJqcGAAAAlhJREFUaEPtmsFtwjAUQJmgTScgIzBCBAuwAYzABnBrb3CiR+gAVbpB2IARGMGR
+        EQAACxEBf2RfkQAAAlhJREFUaEPtmsFtwjAUQJmgTScgIzBCBAuwAYzABnBrb3CiR+gAVbpB2IARGMGR
         2rvrl9jIilKVklT6sfwki/g7jpCfv51IHkGSZOnT46wwRZmiYxl8yXHqy1Uvz2+6LD91ZNjgcL9/R7Kq
         JGP71QQiYUHCGrcFgmPmBghOyeJKcCRMcBsFB0wU3IHNZmOv5CJKsFJKr1Yrnaapnkwmerlc6svlYlu1
         Pp1OVXtfHA4HfTwebe3vrNfr6j9KRpRgJzbPc10URXVNDPGAEOp9gZyugqRLFiOYTDWf5Pp8PttIndEM
@@ -135,6 +135,9 @@
 </value>
   </data>
   <metadata name="CustomerName.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="SKUNumber.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
   <metadata name="Email.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
@@ -152,7 +155,7 @@
   <data name="BtnReset.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAHgAAAAaCAYAAAB8WJiDAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
-        EwAACxMBAJqcGAAAAwJJREFUaEPtms1OGzEURvMofZR5APZhD3vYwx72sIc9SHQHuyx4AHb9Q4i2QkSo
+        EQAACxEBf2RfkQAAAwJJREFUaEPtms1OGzEURvMofZR5APZhD3vYwx72sIc9SHQHuyx4AHb9Q4i2QkSo
         LS2KqlaVKtfH5Qu3IycZUMlMrPtJlj0e+3pyj6/tUaaHXlfVizdVNXhbVV9jHjwtfDqC6RguYD/t7YXf
         o1FwLbZgeHtwEGCaIEObCldZImAj2wGAPXILFEyJ4gTYVaZg64ALVqcAs6R83t8PF8vL4aLfT+n96moY
         bm+HX8PhfSvXY9QZwHcnJwkshz17HgDst+PjBPq5DoKMxxglnkM6Afj28DABnOZgQF/GNncRxGOkVQH7
@@ -171,7 +174,7 @@
   <data name="BtnPdf.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAHgAAAAaCAYAAAB8WJiDAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
-        EwAACxMBAJqcGAAAA6RJREFUaEPtmr1uE0EUhf0EYF4g8gsALwAIJWUg9E6PlNBRQQEthB6npnAqUCiC
+        EQAACxEBf2RfkQAAA6RJREFUaEPtmr1uE0EUhf0EYF4g8gsALwAIJWUg9E6PlNBRQQEthB6npnAqUCiC
         lFQpTA9yC40r0tkS9Ga+XR/nZjKzG5y1ZS9zpaPdnTnzd8/cO7vSNrBm82Hr1s2NU4ehwzhh5XGIplbc
         JGz9MMxEdjeHXkVCfXCKwKGKhHpgmASuOSoR+O2bD+PB4OwSut2TID9hcahE4NHod7C81/u+MJGf7bwb
         t9aeBOv+Z1Qi8GDwK1iOwFiZyK21rXGn8ymL+n7/Z8a/e7sd5MaAPdp8HqybBWyWbve4cNPs7uxlaxSO
@@ -193,7 +196,7 @@
   <data name="BtnExporttoExcel.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAHgAAAAaCAYAAAB8WJiDAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAL
-        EwAACxMBAJqcGAAAA0RJREFUaEPtms9qFEEQhwcEQQwGAkpAlAQEIRthTwq56SmCOW/Ogrl5y8GzuQse
+        EQAACxEBf2RfkQAAA0RJREFUaEPtms9qFEEQhwcEQQwGAkpAlAQEIRthTwq56SmCOW/Ogrl5y8GzuQse
         PenBc8YHUPYBfAMfwD8nH2Hsr3d/Q9n0ZGeSnWTS6YUfO11V3V3dX1fPHrbg86scb/wux9M/5fiv+66y
         Lr1KmNZwM9j0BFMP2TXK0JmVjKYAjjmyEhBVnAEnrgw4cfUC+MfnR9X3D1tR32XW8dEDr5ivD318s1l9
         ffcw6murXgC/f33fK+ZbpMnTtWpne6XW5NnaqcdatsgNxXx9aGe0Uh1O1qO+thoc4Ht3rlcHL27X1fL2
