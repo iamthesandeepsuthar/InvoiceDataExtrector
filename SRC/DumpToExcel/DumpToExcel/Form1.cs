@@ -20,111 +20,39 @@ namespace DumpToExcel
     public partial class Form1 : Form
     {
         DataTable dtCustomerData = new DataTable();
+        string[] fileNames;
         string messageBoxTitle = "Invoice Extractor";
         public Form1()
         {
             InitializeComponent();
 
-            lblAssemblyVersion.Text = $"Version:{ Application.ProductVersion}";
+            lblAssemblyVersion.Text = $"Version:{Application.ProductVersion}";
         }
 
         private void BtnExtractData_Click(object sender, EventArgs e)
         {
-            try
-            {
-                ControlEnable(false);
-                if (!string.IsNullOrEmpty(txtFilePath.Text))
-                {
-                    bool isInternetAvailable = IsInternetConnectionAvailable();
-
-                    if (isInternetAvailable)
-                    {
-                        BtnExtractData.Enabled = false;
-                        pbLoading.Visible = true;
-                        List<string> emailList = new List<string>();
-                        var PDFFilePath = txtFilePath.Text.Trim();
-                        GetData(PDFFilePath);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Internet connection is not available.", messageBoxTitle);
-                        ControlEnable(true);
-                    }
-                }
-                else
-                    MessageBox.Show("Select PDF file first", messageBoxTitle);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error in GetData:{ex.Message}", "Error");
-            }
-        }
-
-        private async void GetData(string fileName)
-        {
-            string pdfFilePath = fileName;
-            string pageText = string.Empty;
-            try
-            {
-                List<CustomerModel> customerModel = new List<CustomerModel>();
-                using (PdfReader pdfReader = new PdfReader(pdfFilePath))
-                {
-                    for (int page = 1; page <= pdfReader.NumberOfPages; page++)
-                    {
-                        CustomerModel customer = new CustomerModel();
-                        // Extract text from the current page
-                        pageText = PdfTextExtractor.GetTextFromPage(pdfReader, page);
-                        customer.PageContent = pageText;
-                        //Customer Name
-                        int pFrom = pageText.IndexOf("Recipient Address:") + "Recipient Address:".Length;
-                        int pTo = pageText.IndexOf("Ship From Address");
-                        customer.CustomerName = pageText.Substring(pFrom, pTo - pFrom).Trim();
-
-                        // Use a regular expression to find email addresses in the text
-                        // Add matching email addresses to the list
-                        string pattern = @"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}\b";
-                        MatchCollection matches = Regex.Matches(pageText, pattern);
-                        customer.EmailId = matches[0].Success && matches.Count == 1 ? matches[0].Value : "";
-                        // Add matching contact numbers to the list
-                        string patternContact = @"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b";
-                        MatchCollection matchesContact = Regex.Matches(pageText, patternContact);
-                        customer.MobileNo = matchesContact[0].Success && matchesContact.Count == 1 ? matchesContact[0].Value : "";
-
-                        //Pincode                  
-                        string patternPincode = @"\b\d{6}\b";
-                        MatchCollection matchesPincode = Regex.Matches(pageText, patternPincode);
-
-                        foreach (Match matchPincode in matchesPincode)
-                        {
-                            if (!matchPincode.Value.Contains("302017") &&
-                                !matchPincode.Value.Contains("302003") &&
-                                !matchPincode.Value.Contains("560025"))
-                            {
-                                customer.Pincode = matchPincode.Value;
-                            }
-                        }
-
-                        customer.RecipientAddress = await GetAreaNameFromPincode(customer);
-                        customerModel.Add(customer);
-                    }
-                }
-                if (customerModel.Count() > 0)
-                {
-                    dtCustomerData = GetDataTable(customerModel);
-                    dgData.DataSource = dtCustomerData.DefaultView;
-                    dgData.AutoGenerateColumns = true;
-                    BtnExporttoExcel.Enabled = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error in GetData:{ex.Message}", "Error");
-            }
-            pbLoading.Visible = false;
-            ControlEnable(true);
-
+            ExtractData();
         }
         private void BtnExporttoExcel_Click(object sender, EventArgs e)
+        {
+            ExportToExcel();
+        }
+
+        private void dgData_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        {
+            try
+            {
+                using (SolidBrush b = new SolidBrush(((DataGridView)sender).RowHeadersDefaultCellStyle.ForeColor))
+                {
+                    e.Graphics.DrawString((e.RowIndex + 1).ToString(), e.InheritedRowStyle.Font, b, e.RowBounds.Location.X + 10, e.RowBounds.Location.Y + 4);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error in dgData_RowPostPaint:{ex.Message}", "Error");
+            }
+        }
+        private void ExportToExcel()
         {
             try
             {
@@ -151,20 +79,137 @@ namespace DumpToExcel
             }
             pbLoading.Visible = false;
         }
-
-        private void dgData_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        private void ExtractData()
         {
             try
             {
-                using (SolidBrush b = new SolidBrush(((DataGridView)sender).RowHeadersDefaultCellStyle.ForeColor))
+                ControlEnable(false);
+                if (!string.IsNullOrEmpty(txtFilePath.Text))
                 {
-                    e.Graphics.DrawString((e.RowIndex + 1).ToString(), e.InheritedRowStyle.Font, b, e.RowBounds.Location.X + 10, e.RowBounds.Location.Y + 4);
+                    bool isInternetAvailable = IsInternetConnectionAvailable();
+
+                    if (isInternetAvailable)
+                    {
+                        BtnExtractData.Enabled = false;
+                        pbLoading.Visible = true;
+                        GetData();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Internet connection is not available.", messageBoxTitle);
+                        ControlEnable(true);
+                    }
+                }
+                else
+                    MessageBox.Show("Select PDF file first", messageBoxTitle);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error in GetData:{ex.Message}", "Error");
+            }
+        }
+        private async void GetData()
+        {
+            string pageText = string.Empty;
+            try
+            {
+                List<CustomerModel> customerModel = new List<CustomerModel>();
+
+                foreach (var item in fileNames)
+                {
+                    using (PdfReader pdfReader = new PdfReader(item.Trim()))
+                    {
+                        for (int page = 1; page <= pdfReader.NumberOfPages; page++)
+                        {
+                            CustomerModel customer = new CustomerModel();
+                            // Extract text from the current page
+                            pageText = PdfTextExtractor.GetTextFromPage(pdfReader, page);
+                            customer.PageContent = pageText;
+                            //Customer Name
+                            int pFrom = pageText.IndexOf("Recipient Address:") + "Recipient Address:".Length;
+                            int pTo = pageText.IndexOf("Ship From Address");
+                            customer.CustomerName = pageText.Substring(pFrom, pTo - pFrom).Trim();
+
+                            // Use a regular expression to find email addresses in the text
+                            // Add matching email addresses to the list
+                            string pattern = @"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}\b";
+                            MatchCollection matches = Regex.Matches(pageText, pattern);
+                            customer.EmailId = matches != null && matches.Count > 0 && matches[0].Success && matches.Count > 0 ? matches[0].Value : "";
+
+                            // Add matching contact numbers to the list
+                            string patternContact = @"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b";
+                            MatchCollection matchesContact = Regex.Matches(pageText, patternContact);
+
+                            customer.MobileNo = matchesContact != null && matchesContact.Count > 0 && matchesContact[0].Success && matchesContact.Count > 0 ? matchesContact[0].Value : "";
+
+
+                            //Pincode                  
+                            string patternPincode = @"\b\d{6}\b";
+                            MatchCollection matchesPincode = Regex.Matches(pageText, patternPincode);
+
+                            if (matchesPincode != null && matchesPincode.Count > 0)
+                            {
+
+                                foreach (Match matchPincode in matchesPincode)
+                                {
+                                    if (!matchPincode.Value.Contains("302017") &&
+                                        !matchPincode.Value.Contains("302003") &&
+                                        !matchPincode.Value.Contains("560025"))
+                                    {
+                                        customer.Pincode = matchPincode.Value;
+                                    }
+                                }
+                            }
+                            customer.RecipientAddress = await GetAreaNameFromPincode(customer);
+
+
+                            //Customer Name
+                            int oFrom = pageText.IndexOf("ORDER NUMBER:") + "ORDER NUMBER:".Length;
+                            int oTo = pageText.IndexOf("Mode Of Payment:");
+                            customer.OrderNumber = pageText.Substring(oFrom, oTo - oFrom).Trim() ?? "";
+                            if (customer.CustomerName.Contains("Divakar Dommaraju"))
+                            {
+                                var k = string.Empty;
+                            }
+                            string skuPattern = @"[A-Z]{3,4}\d{3,4}[A-Z,0-9]+(_[A-Z]{1,}|-([A-Z]{1,})|--([A-Z]{1,})|--)";
+                            string ptext = Regex.Replace(pageText, @"\t|\n|\r", "");
+                            MatchCollection SKUmatches = Regex.Matches(ptext, skuPattern);
+                            if (SKUmatches != null && SKUmatches.Count > 0)
+                            {
+                                if (SKUmatches.Count == 1)
+                                {
+                                    customer.SKUId = SKUmatches[0].Success && SKUmatches.Count > 0 ? SKUmatches[0].Value : "";
+                                }
+                                else
+                                {
+                                    for (int i = 0; i < SKUmatches.Count; i++)
+                                    {
+                                        customer.SKUId += SKUmatches[i].Success && SKUmatches.Count > 0 ? $"{(i > 0 ? "," : string.Empty)}{SKUmatches[i].Value}" : "";
+                                    }
+                                }
+                            }
+
+
+                            customerModel.Add(customer);
+                        }
+                    }
+                }
+
+                if (customerModel.Count() > 0)
+                {
+                    dtCustomerData = GetDataTable(customerModel);
+                    dgData.DataSource = dtCustomerData.DefaultView;
+                    dgData.AutoGenerateColumns = true;
+                    BtnExporttoExcel.Enabled = true;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error in dgData_RowPostPaint:{ex.Message}", "Error");
+                MessageBox.Show($"Error in GetData:{ex.Message}", "Error");
             }
+            pbLoading.Visible = false;
+            ControlEnable(true);
+
         }
 
         private DataTable GetDataTable(List<CustomerModel> model)
@@ -173,14 +218,17 @@ namespace DumpToExcel
             try
             {
                 dtData.Columns.Add("CustomerName", typeof(string));
-                dtData.Columns.Add("Email", typeof(string));
+                dtData.Columns.Add("OrderNumber", typeof(string));
+                dtData.Columns.Add("SKUNumber", typeof(string));
+
+                //dtData.Columns.Add("Email", typeof(string));
                 dtData.Columns.Add("ContactNo", typeof(string));
                 dtData.Columns.Add("Pincode", typeof(string));
                 dtData.Columns.Add("CustomerAddress", typeof(string));
 
                 foreach (var item in model)
                 {
-                    dtData.Rows.Add(item.CustomerName, item.EmailId, item.MobileNo, item.Pincode, item.RecipientAddress);
+                    dtData.Rows.Add(item.CustomerName, item.OrderNumber, item.SKUId, item.MobileNo, item.Pincode, item.RecipientAddress);
                 }
             }
             catch (Exception ex)
@@ -240,9 +288,11 @@ namespace DumpToExcel
             {
                 OpenFileDialog openFileDialog = new OpenFileDialog();
                 openFileDialog.Filter = "PDF Files (*.pdf)|*.pdf";
+                openFileDialog.Multiselect = true;
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    txtFilePath.Text = openFileDialog.FileName;
+                    fileNames = openFileDialog.FileNames;
+                    txtFilePath.Text = fileNames.Length > 1 ? $"{fileNames.Length} files selected...!" : openFileDialog.FileName;
                     BtnExtractData.Enabled = true;
                 }
             }
@@ -259,8 +309,9 @@ namespace DumpToExcel
                 BtnExtractData.Enabled = false;
                 BtnExporttoExcel.Enabled = false;
                 pbLoading.Visible = false;
-                txtFilePath.Clear();
                 dgData.DataSource = null;
+                fileNames = null;
+                txtFilePath.Text = null;
             }
             catch (Exception ex)
             {
@@ -272,35 +323,38 @@ namespace DumpToExcel
         {
             try
             {
-                using (HttpClient client = new HttpClient())
+                if (model != null && !string.IsNullOrEmpty(model.Pincode))
                 {
-                    string apiUrl = $"https://api.postalpincode.in/pincode/{model.Pincode}";
-                    HttpResponseMessage response = await client.GetAsync(apiUrl);
-
-                    if (response.IsSuccessStatusCode)
+                    using (HttpClient client = new HttpClient())
                     {
-                        string responseBody = await response.Content.ReadAsStringAsync();
-                        PincodeDataModel data = new PincodeDataModel();
-                        var responseData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PincodeDataModel>>(responseBody);
-                        data = responseData.FirstOrDefault();
-                        string address = string.Empty;
-                        if (!string.IsNullOrEmpty(model.PageContent))
+                        string apiUrl = $"https://api.postalpincode.in/pincode/{model.Pincode}";
+                        HttpResponseMessage response = await client.GetAsync(apiUrl);
+
+                        if (response.IsSuccessStatusCode)
                         {
-                            foreach (var item in data.PostOffice)
+                            string responseBody = await response.Content.ReadAsStringAsync();
+                            PincodeDataModel data = new PincodeDataModel();
+                            var responseData = Newtonsoft.Json.JsonConvert.DeserializeObject<List<PincodeDataModel>>(responseBody);
+                            data = responseData.FirstOrDefault();
+                            string address = string.Empty;
+                            if (!string.IsNullOrEmpty(model.PageContent) && data.PostOffice != null)
                             {
-                                if (model.PageContent.Contains(item.Name))
+                                foreach (var item in data.PostOffice)
                                 {
-                                    address = $"{item.Name},";
+                                    if (model.PageContent.Contains(item.Name))
+                                    {
+                                        address = $"{item.Name},";
+                                    }
+                                }
+
+                                if (data.Status == "Success")
+                                {
+                                    address = $"{address}{data.PostOffice[0].District}, {data.PostOffice[0].State}-{model.Pincode}";
                                 }
                             }
 
-                            if (data.Status == "Success")
-                            {
-                                address = $"{address}{data.PostOffice[0].District}, {data.PostOffice[0].State}-{model.Pincode}";
-                            }
+                            return address;
                         }
-
-                        return address;
                     }
                 }
             }
@@ -335,7 +389,7 @@ namespace DumpToExcel
             {
                 BtnExtractData.Enabled = isEnable;
                 BtnReset.Enabled = isEnable;
-                BtnPdf.Enabled = isEnable;
+                //BtnPdf.Enabled = isEnable;
                 if (isEnable && txtFilePath.Text.Length > 0)
                 {
                     BtnExporttoExcel.Enabled = isEnable;
@@ -392,7 +446,7 @@ namespace DumpToExcel
                 int daysDifference = (int)difference.TotalDays;
                 if (dtExpiredOnWithoutTime == dtTodayWithoutTime)
                 {
-                    MessageBox.Show($"Software licence has been expired,{Environment.NewLine} Please contact Administrator", messageBoxTitle,MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                    MessageBox.Show($"Software licence has been expired,{Environment.NewLine} Please contact Administrator", messageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     Application.Exit();
                 }
                 else if (daysDifference <= 10)
@@ -410,6 +464,11 @@ namespace DumpToExcel
         private void Form1_Load(object sender, EventArgs e)
         {
             CheckApplicationLicence();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Hi");
         }
     }
 }
